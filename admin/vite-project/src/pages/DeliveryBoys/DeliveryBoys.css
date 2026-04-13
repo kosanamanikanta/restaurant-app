@@ -1,7 +1,9 @@
 .db-page { padding: 30px; max-width: 700px; }
 .db-title { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 24px; }
 .db-section { margin-bottom: 28px; }
-.db-section-title { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 12px; }
+.db-section-title { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.db-red-dot { width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; display: inline-block; animation: redPulse 1.2s infinite; }
+@keyframes redPulse { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.5)} 50%{box-shadow:0 0 0 6px rgba(231,76,60,0)} }
 .db-empty { color: #bbb; font-size: 14px; text-align: center; padding: 20px 0; }
 .db-card { background: white; border-radius: 12px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid tomato; margin-bottom: 10px; transition: opacity 0.2s; }
 .db-card.inactive { border-left-color: #ddd; opacity: 0.6; }

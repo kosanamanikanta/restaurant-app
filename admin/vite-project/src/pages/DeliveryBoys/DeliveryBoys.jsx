@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { io } from 'socket.io-client'
 import './DeliveryBoys.css'
 
 const DeliveryBoys = ({ url }) => {
     const [boys, setBoys] = useState([])
+    const [newRequest, setNewRequest] = useState(false)
 
     const fetchBoys = async () => {
         const r = await axios.get(`${url}/api/deliveryboy/list`)
         if (r.data.success) setBoys(r.data.data)
     }
 
-    useEffect(() => { fetchBoys() }, [])
+    useEffect(() => {
+        fetchBoys()
+        const socket = io(url)
+        socket.on('new-delivery-boy', ({ name }) => {
+            setNewRequest(true)
+            toast.info(`🚚 New delivery boy registered: ${name}`)
+            fetchBoys()
+        })
+        return () => socket.disconnect()
+    }, [])
 
     const approve = async (id) => {
         const r = await axios.post(`${url}/api/deliveryboy/approve/${id}`)
@@ -38,7 +49,10 @@ const DeliveryBoys = ({ url }) => {
 
             {pending.length > 0 && (
                 <div className='db-section'>
-                    <p className='db-section-title'>⏳ Pending Approval ({pending.length})</p>
+                    <p className='db-section-title'>
+                        ⏳ Pending Approval ({pending.length})
+                        {newRequest && <span className='db-red-dot'/>}
+                    </p>
                     {pending.map(b => (
                         <div key={b._id} className='db-card pending'>
                             <div className='db-info'>
@@ -46,7 +60,7 @@ const DeliveryBoys = ({ url }) => {
                                 <p className='db-meta'>@{b.username} {b.phone && `· 📞 ${b.phone}`}</p>
                             </div>
                             <div className='db-actions'>
-                                <button className='db-approve-btn' onClick={() => approve(b._id)}>✅ Approve</button>
+                                <button className='db-approve-btn' onClick={() => { approve(b._id); setNewRequest(false) }}>✅ Approve</button>
                                 <button className='db-del-btn' onClick={() => remove(b._id)}>🗑️</button>
                             </div>
                         </div>

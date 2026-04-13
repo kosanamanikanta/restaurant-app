@@ -12,6 +12,7 @@ const registerDeliveryBoy = async (req, res) => {
         if (exists) return res.json({ success: false, message: "Username already taken" })
         const hashed = await bcrypt.hash(password, 10)
         await deliveryBoyModel.create({ name, phone, username, password: hashed, approved: false })
+        io.emit('new-delivery-boy', { name, username })
         res.json({ success: true, message: "Registered! Wait for admin approval." })
     } catch (e) {
         res.json({ success: false, message: e.message })
