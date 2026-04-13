@@ -249,10 +249,8 @@ async function loadOrders() {
             headers: { 'Content-Type': 'application/json', 'token': dbToken }
         })
         const d = await r.json()
-        console.log('available-orders response:', d)
         if (!d.success) { showLogin(); return }
         currentOrders = d.data || []
-        // restore selected order if it's my current order
         if (d.myOrderId && selectedOrder?._id !== d.myOrderId) {
             const mine = currentOrders.find(o => o._id === d.myOrderId)
             if (mine) { selectedOrder = mine; selectedOrder._accepted = true; localStorage.setItem('dbOrder', JSON.stringify(selectedOrder)) }
@@ -559,7 +557,15 @@ function logout() {
 }
 
 // ── init ──
-if (dbToken && deliveryBoyName) { connectSocket(); loadOrders() } else showLogin()
+if (dbToken && deliveryBoyName) {
+    connectSocket()
+    loadOrders().then(() => {
+        // if was tracking before restart — auto resume
+        if (isTracking && selectedOrder) {
+            startTracking()
+        }
+    })
+} else showLogin()
 </script>
 </body>
 </html>
