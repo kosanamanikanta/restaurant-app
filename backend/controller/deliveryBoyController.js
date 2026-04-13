@@ -49,7 +49,7 @@ const getAvailableOrders = async (req, res) => {
         // show only unassigned Ready for Pickup / Out for Delivery orders
         const orders = await orderModel.find({
             status: { $in: ['Ready for Pickup', 'Out for Delivery'] },
-            $or: [{ assignedTo: null }, { assignedTo: '' }]
+            $or: [{ assignedTo: null }, { assignedTo: '' }, { assignedTo: { $exists: false } }]
         }).sort({ date: 1 })
         res.json({ success: true, data: orders, myOrderId: null })
     } catch (e) {
@@ -76,6 +76,7 @@ const acceptOrder = async (req, res) => {
             isAvailable: false,
             currentOrderId: String(req.body.orderId)
         })
+        io.emit('order-status-changed', { orderId: req.body.orderId, status: 'Out for Delivery' })
         res.json({ success: true, message: "Order accepted!" })
     } catch (e) {
         res.json({ success: false, message: e.message })
