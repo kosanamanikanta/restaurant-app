@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 import { food_list as staticFoodList, menu_list as staticMenuList } from "../../assets/assets";
 import { toast } from "react-toastify";
 
@@ -153,7 +154,15 @@ const StoreContextProvider=(props)=>{
             fetchMenuList()
             fetchSettings()
         }, 5000)
-        return () => clearInterval(interval)
+        // socket — admin clear all data అయితే logout చేయి
+        const socket = io(url)
+        socket.on('orders-cleared', () => {
+            setToken('')
+            setCartItems({})
+            localStorage.removeItem('token')
+            toast.info('Session expired. Please login again.')
+        })
+        return () => { clearInterval(interval); socket.disconnect() }
     }, [])
 
     const contextValue = { food_list, menu_list, cartItems, setCartItems, addToCart, removeFromCart, getTotalCartAmount, url, token, setToken, searchQuery, setSearchQuery, settings, paymentConfig, deliveryDistance, locationError, getUserLocation }
