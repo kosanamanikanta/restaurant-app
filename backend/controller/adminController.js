@@ -91,7 +91,6 @@ const fullReset = async (req, res) => {
     try {
         await Promise.all([
             orderModel.deleteMany({}),
-            userModel.deleteMany({}),
             foodModel.deleteMany({}),
             categoryModel.deleteMany({}),
             promoModel.deleteMany({}),
