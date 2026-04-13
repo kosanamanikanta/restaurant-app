@@ -525,11 +525,14 @@ function stopTracking() {
     arrivedShown = false
     if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null }
     if (socket && selectedOrder) socket.emit('leave-order', selectedOrder._id)
+    const orderId = selectedOrder?._id
     if (selectedOrder) {
         fetch(`${API}/api/deliveryboy/complete`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'token': dbToken },
-            body: JSON.stringify({})
+            body: JSON.stringify({ orderId })
+        }).then(r => r.json()).then(d => {
+            if (!d.success) alert('Error: ' + d.message)
         })
     }
     isTracking = false; selectedOrder = null
