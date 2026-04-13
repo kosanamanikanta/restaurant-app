@@ -4,7 +4,7 @@ import { assets } from '../../assets/assets'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
-const url = 'http://localhost:4000'
+const url = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
 const Navbar = ({ adminData, onLogout }) => {
     const navigate = useNavigate()

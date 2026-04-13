@@ -26,12 +26,17 @@ const App = () => {
     localStorage.setItem('adminToken', tok)
   }
 
+  const handleLogout = () => {
+    setToken('')
+    localStorage.removeItem('adminToken')
+  }
+
   if (!token) return <Login url={url} onLogin={handleLogin} />
 
   return (
     <div>
       <ToastContainer/>
-      <Navbar/>
+      <Navbar onLogout={handleLogout}/>
       <hr/>
       <div className='app-content'>
         <Sidebar/>
