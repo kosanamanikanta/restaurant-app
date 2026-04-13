@@ -481,7 +481,7 @@ function startTracking() {
         // ── arrived detection (< 150m) ──
         if (customerCoords && !arrivedShown) {
             const dist = haversine(lat, lng, customerCoords.lat, customerCoords.lng)
-            if (dist < 0.15) {
+            if (dist < 0.03) {
                 arrivedShown = true
                 if (map) { map.remove(); map = null; myMarker = null; customerMarker = null; routeLayer = null }
                 if (socket) socket.emit('delivery-arrived', selectedOrder._id)
