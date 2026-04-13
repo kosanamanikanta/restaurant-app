@@ -134,7 +134,13 @@ const StoreContextProvider=(props)=>{
     const loadCartData = async()=>{
         if(token){
             const response = await axios.post(url+"/api/cart/get",{}, {headers:{token}})
-            setCartItems(response.data.cartData || {})
+            if (!response.data.success && response.data.message === 'Not Authorized') {
+                setToken('')
+                setCartItems({})
+                localStorage.removeItem('token')
+            } else {
+                setCartItems(response.data.cartData || {})
+            }
         }
     }
 
