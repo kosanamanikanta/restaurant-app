@@ -49,9 +49,13 @@ const MyOrders = () => {
         const interval = setInterval(() => {
             if (!ratingOrder) fetchOrders()
         }, 5000)
-        // socket — instant delivered update
+        return () => clearInterval(interval)
+    }, [token, ratingOrder])
+
+    // socket — separate effect so it re-runs when orders change
+    useEffect(() => {
+        if (!token || orders.length === 0) return
         const socket = io(url)
-        // join all active order rooms
         orders.filter(o => o.status === 'Out for Delivery').forEach(o => {
             socket.emit('join-order', o._id)
         })
@@ -65,8 +69,8 @@ const MyOrders = () => {
             fetchOrders()
             toast.success('🎉 Your order has been delivered!')
         })
-        return () => { clearInterval(interval); socket.disconnect() }
-    }, [token, ratingOrder])
+        return () => socket.disconnect()
+    }, [token, orders.length])
 
     const cancelOrder = async (orderId) => {
         const response = await axios.post(url + '/api/order/cancel', { orderId }, { headers: { token } })
