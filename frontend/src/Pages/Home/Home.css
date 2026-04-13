@@ -1,0 +1,36 @@
+.cart-float-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: tomato;
+    color: white;
+    padding: 14px 28px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(255,99,71,0.5);
+    z-index: 998;
+    font-size: 15px;
+    font-weight: 600;
+    animation: slideUp 0.3s ease;
+    white-space: nowrap;
+}
+
+.cart-float-bar:hover {
+    background: #e03e1a;
+    transform: translateX(-50%) translateY(-3px);
+    box-shadow: 0 12px 35px rgba(255,99,71,0.6);
+}
+
+.cart-float-right {
+    font-weight: 700;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+    <title>TUTA-Delivery Boy App</title>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, tomato, #e03e1a); color: white; padding: 14px 20px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(255,99,71,0.3); }
+        .header h1 { font-size: 18px; font-weight: 700; }
+        .wrap { padding: 14px; max-width: 480px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+        input { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 15px; outline: none; margin-bottom: 8px; }
+        input:focus { border-color: tomato; }
+        .btn { width: 100%; padding: 13px; border: none; border-radius: 50px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 8px; display: block; }
+        .btn-red  { background: linear-gradient(135deg, tomato, #e03e1a); color: white; }
+        .btn-green{ background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+        .btn-stop { background: #e74c3c; color: white; }
+        .btn-sm   { width: auto; padding: 7px 14px; font-size: 12px; margin-top: 0; }
+        .order-card { border: 1.5px solid #eee; border-radius: 10px; padding: 12px 14px; cursor: pointer; margin-bottom: 8px; transition: 0.2s; user-select: none; }
+        .order-card:last-child { margin-bottom: 0; }
+        .order-card:hover { border-color: tomato; background: #fff8f6; }
+        .order-card.selected { border-color: tomato; background: #fff5f3; }
+        .order-card.locked { opacity: 0.35; pointer-events: none; cursor: default; }
+        .order-card h3 { font-size: 13px; font-weight: 700; color: #333; margin-bottom: 5px; }
+        .order-card p  { font-size: 12px; color: #777; margin: 2px 0; }
+        .badge { background: #fff5f3; color: tomato; border: 1px solid tomato; border-radius: 20px; padding: 1px 8px; font-size: 11px; font-weight: 700; margin-left: 6px; }
+        .lock-badge { background: #f5f5f5; color: #aaa; border: 1px solid #ddd; border-radius: 20px; padding: 1px 8px; font-size: 11px; margin-left: 6px; }
+        .sec-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 10px; }
+        .no-orders { text-align: center; color: #bbb; padding: 24px 0; font-size: 13px; line-height: 1.8; }
+        .live-bar { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #333; }
+        .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+        .dot-green { background: #2ecc71; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(46,204,113,0.5)}50%{box-shadow:0 0 0 6px rgba(46,204,113,0)} }
+        #map { height: 300px; border-radius: 10px; margin-top: 10px; border: 1.5px solid #f0e0de; }
+        .dist-bar { display: flex; justify-content: space-between; align-items: center; background: #fff5f3; border-radius: 8px; padding: 9px 14px; margin-top: 8px; }
+        .dist-bar span { font-size: 12px; color: #888; }
+        .dist-bar b { font-size: 15px; color: tomato; font-weight: 800; }
+        .info-row { display: flex; gap: 6px; font-size: 12px; color: #555; margin: 3px 0; align-items: flex-start; }
+        .divider { height: 1px; background: #f0e0de; margin: 8px 0; }
+        .footer-card { text-align: center; }
+        .footer-card p { font-size: 12px; color: #aaa; }
+        .logout-btn { background: none; border: none; color: #aaa; font-size: 12px; cursor: pointer; font-weight: 600; margin-top: 4px; display: inline-block; }
+        .btn-logout { background: #f5f5f5; color: #e74c3c; border: 1.5px solid #e74c3c; border-radius: 50px; padding: 10px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
+        .row-between { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .customer-card { background: linear-gradient(135deg, #fff5f3, #fff); border: 1.5px solid #ffd5cc; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+        .customer-card .c-name { font-size: 16px; font-weight: 800; color: #333; margin-bottom: 6px; }
+        .customer-card .c-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; margin: 4px 0; }
+        .customer-card .c-phone { font-size: 15px; font-weight: 700; color: tomato; text-decoration: none; }
+        .arrived-card { background: linear-gradient(135deg, #f0fff4, #e8f8f0); border: 2px solid #2ecc71; border-radius: 16px; padding: 28px 20px; text-align: center; }
+        .arrived-card .arrived-icon { font-size: 56px; margin-bottom: 10px; animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .arrived-card h2 { font-size: 22px; font-weight: 800; color: #27ae60; margin-bottom: 6px; }
+        .arrived-card p { font-size: 14px; color: #555; margin-bottom: 16px; }
+        .arrived-card .c-name-big { font-size: 18px; font-weight: 700; color: #333; margin-bottom: 4px; }
+        .arrived-card .c-phone-big { font-size: 16px; color: tomato; font-weight: 700; margin-bottom: 16px; display: block; text-decoration: none; }
+        @keyframes popIn { from{transform:scale(0.3);opacity:0} to{transform:scale(1);opacity:1} }
+    </style>
+</head>
+<body>
+<div class="header"><span>🚚</span><h1>Delivery Boy App</h1><button id="headerLogoutBtn" onclick="logout()" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:white;font-size:13px;font-weight:700;padding:6px 14px;border-radius:50px;cursor:pointer;display:none;">🚪 Logout</button></div>
+<div class="wrap" id="app"></div>
+<script>
+const API = 'http://localhost:4000'
+
+// ── state ──
+let deliveryBoyName = localStorage.getItem('dbName') || ''
+let dbToken = localStorage.getItem('dbToken') || ''
+let selectedOrder = null
+let isTracking = false
+let currentOrders = []
+let socket = null
+let watchId = null
+
+// map state
+let map = null, myMarker = null, customerMarker = null, routeLayer = null
+let myLat = null, myLng = null, customerCoords = null
+
+// restore from localStorage
+try { const s = localStorage.getItem('dbOrder'); if (s) { selectedOrder = JSON.parse(s) } } catch(e) {}
+if (localStorage.getItem('dbTracking') === 'true') isTracking = true
+
+const app = document.getElementById('app')
+// ── utils ──
+
+const distLabel = km => km < 1 ? `${Math.round(km*1000)} m` : `${km.toFixed(1)} km`
+
+function haversine(a, b, c, d) {
+    const R=6371, dL=(c-a)*Math.PI/180, dG=(d-b)*Math.PI/180
+    const x=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dG/2)**2
+    return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))
+}
+
+async function geocode(addr) {
+    try {
+        const q = encodeURIComponent(`${addr.street}, ${addr.city}, ${addr.state}, ${addr.country}`)
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`)
+        const d = await r.json()
+        if (d.length > 0) return { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon) }
+    } catch(e) {}
+    return null
+}
+
+async function getRoute(fLat, fLng, tLat, tLng) {
+    try {
+        const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${fLng},${fLat};${tLng},${tLat}?overview=full&geometries=geojson`)
+        const d = await r.json()
+        if (d.routes?.[0]) return {
+            coords: d.routes[0].geometry.coordinates.map(c => [c[1], c[0]]),
+            distKm: d.routes[0].distance / 1000,
+            durMin: Math.round(d.routes[0].duration / 60)
+        }
+    } catch(e) {}
+    return null
+}
+
+function getMyPos() {
+    return new Promise(resolve => {
+        if (!navigator.geolocation) return resolve(null)
+        navigator.geolocation.getCurrentPosition(
+            p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
+            () => resolve(null),
+            { enableHighAccuracy: true, timeout: 8000 }
+        )
+    })
+}
+
+// ── arrived state ──
+let arrivedShown = false
+
+// ── socket ──
+function connectSocket() {
+    if (socket) socket.disconnect()
+    socket = io(API)
+    socket.emit('join-delivery-pool')
+    socket.on('new-order-available', () => {
+        // auto-refresh orders list if not currently tracking
+        if (!isTracking) loadOrders()
+    })
+    socket.on('order-delivered', id => {
+        if (selectedOrder?._id === id) {
+            stopTracking()
+            alert('✅ Order delivered! Great job!')
+        }
+    })
+    socket.on('orders-cleared', () => {
+        // admin cleared all data — reset everything
+        if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null }
+        isTracking = false; selectedOrder = null; arrivedShown = false
+        if (map) { map.remove(); map = null }
+        myMarker = null; customerMarker = null; routeLayer = null; customerCoords = null
+        localStorage.removeItem('dbTracking'); localStorage.removeItem('dbOrder')
+        loadOrders()
+    })
+}
+
+// ── screens ──
+function showLogin() {
+    app.innerHTML = `
+        <div class="card">
+            <p class="sec-title">🚚 Delivery Boy Login</p>
+            <input id="userIn" type="text" placeholder="Username"/>
+            <input id="passIn" type="password" placeholder="Password"/>
+            <button class="btn btn-red" id="loginBtn">Login 🚀</button>
+            <p id="loginErr" style="color:#e74c3c;font-size:13px;margin-top:6px;text-align:center;"></p>
+            <p style="text-align:center;margin-top:12px;font-size:13px;color:#888;">New here? <span id="goRegister" style="color:tomato;cursor:pointer;font-weight:700;">Register</span></p>
+        </div>`
+    document.getElementById('loginBtn').onclick = async () => {
+        const username = document.getElementById('userIn').value.trim()
+        const password = document.getElementById('passIn').value.trim()
+        if (!username || !password) { document.getElementById('loginErr').textContent = 'Enter username and password'; return }
+        try {
+            const r = await fetch(`${API}/api/deliveryboy/login`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            })
+            const d = await r.json()
+            if (!d.success) {
+                if (d.message === 'pending') {
+                    document.getElementById('loginErr').textContent = '⏳ Your account is pending admin approval. Please wait.'
+                } else {
+                    document.getElementById('loginErr').textContent = d.message
+                }
+                return
+            }
+            deliveryBoyName = d.name
+            dbToken = d.token
+            localStorage.setItem('dbName', d.name)
+            localStorage.setItem('dbToken', d.token)
+            connectSocket()
+            loadOrders()
+        } catch(e) { document.getElementById('loginErr').textContent = 'Connection error' }
+    }
+    document.getElementById('goRegister').onclick = showRegister
+}
+
+function showRegister() {
+    app.innerHTML = `
+        <div class="card">
+            <p class="sec-title">📝 Register as Delivery Boy</p>
+            <input id="regName" type="text" placeholder="Full Name *"/>
+            <input id="regPhone" type="text" placeholder="Phone"/>
+            <input id="regUser" type="text" placeholder="Username *"/>
+            <input id="regPass" type="password" placeholder="Password *"/>
+            <button class="btn btn-red" id="regBtn">Register</button>
+            <p id="regMsg" style="font-size:13px;margin-top:6px;text-align:center;"></p>
+            <p style="text-align:center;margin-top:8px;font-size:13px;color:#888;">Already registered? <span id="goLogin" style="color:tomato;cursor:pointer;font-weight:700;">Login</span></p>
+        </div>`
+    document.getElementById('regBtn').onclick = async () => {
+        const name = document.getElementById('regName').value.trim()
+        const phone = document.getElementById('regPhone').value.trim()
+        const username = document.getElementById('regUser').value.trim()
+        const password = document.getElementById('regPass').value.trim()
+        const msg = document.getElementById('regMsg')
+        if (!name || !username || !password) { msg.style.color='#e74c3c'; msg.textContent = 'Name, username, password required'; return }
+        try {
+            const r = await fetch(`${API}/api/deliveryboy/register`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, phone, username, password })
+            })
+            const d = await r.json()
+            if (d.success) {
+                msg.style.color = '#2ecc71'
+                msg.textContent = '✅ Registered! Wait for admin approval before logging in.'
+                document.getElementById('regBtn').disabled = true
+            } else {
+                msg.style.color = '#e74c3c'
+                msg.textContent = d.message
+            }
+        } catch(e) { document.getElementById('regMsg').textContent = 'Connection error' }
+    }
+    document.getElementById('goLogin').onclick = showLogin
+}
+
+async function loadOrders() {
+    app.innerHTML = `<div class="card"><p style="text-align:center;color:#aaa;padding:16px;">⏳ Loading orders...</p></div>`
+    try {
+        const r = await fetch(`${API}/api/deliveryboy/available-orders`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': dbToken }
+        })
+        const d = await r.json()
+        console.log('available-orders response:', d)
+        if (!d.success) { showLogin(); return }
+        currentOrders = d.data || []
+        // restore selected order if it's my current order
+        if (d.myOrderId && selectedOrder?._id !== d.myOrderId) {
+            const mine = currentOrders.find(o => o._id === d.myOrderId)
+            if (mine) { selectedOrder = mine; selectedOrder._accepted = true; localStorage.setItem('dbOrder', JSON.stringify(selectedOrder)) }
+        }
+        if (!d.myOrderId) { selectedOrder = null; localStorage.removeItem('dbOrder') }
+        showDashboard()
+    } catch(e) {
+        currentOrders = []
+        showDashboard()
+    }
+}
+
+function showDashboard() {
+    // build orders html
+    let ordersHtml = ''
+    if (currentOrders.length === 0) {
+        ordersHtml = `<p class="no-orders">No active deliveries<br/><small>Waiting for new orders...</small></p>`
+    } else {
+        currentOrders.forEach(o => {
+            const isSel = selectedOrder?._id === o._id
+            // server already filters — only unassigned or my order comes here
+            ordersHtml += `
+                <div class="order-card ${isSel?'selected':''}" data-id="${o._id}">
+                    <h3>Order #${o._id.slice(-6).toUpperCase()}
+                        <span class="badge">&#8377;${o.amount}</span>
+                        ${isSel && selectedOrder?._accepted ? '<span style="color:#2ecc71;font-size:11px;margin-left:6px;">✅ Accepted</span>' : ''}
+                    </h3>
+                    <p>👤 ${o.address?.firstName||''} ${o.address?.lastName||''} &nbsp; 📞 ${o.address?.phone||''}</p>
+                    <p>📍 ${o.address?.street||''}, ${o.address?.city||''}</p>
+                </div>`
+        })
+        if (ordersHtml === '') ordersHtml = `<p class="no-orders">No available deliveries</p>`
+    }
+
+    const liveHtml = isTracking && selectedOrder ? `
+        <div class="card">
+            <div class="live-bar"><span class="dot dot-green"></span>&nbsp;Live Tracking Active</div>
+            <p style="font-size:11px;color:#888;margin-top:3px;">
+                Order #${selectedOrder._id.slice(-6).toUpperCase()} — ${selectedOrder.address?.firstName} ${selectedOrder.address?.lastName}
+            </p>
+        </div>` : ''
+
+    app.innerHTML = `
+        ${liveHtml}
+        <div class="card">
+            <div class="row-between">
+                <p class="sec-title" style="margin:0;">📦 Active Deliveries</p>
+                <button class="btn btn-red btn-sm" id="refreshBtn">🔄 Refresh</button>
+            </div>
+            ${ordersHtml}
+        </div>
+        <div id="detail"></div>
+        <div class="card footer-card">
+            <p>Logged in as <b style="color:#333;">${deliveryBoyName}</b></p>
+            <button class="btn-logout" id="logoutBtn">🚪 Logout</button>
+        </div>`
+
+    // bind refresh
+    document.getElementById('refreshBtn').onclick = loadOrders
+
+    // bind logout
+    document.getElementById('logoutBtn').onclick = logout
+    const hBtn = document.getElementById('headerLogoutBtn')
+    if (hBtn) hBtn.style.display = 'block'
+
+    // bind order card clicks
+    document.querySelectorAll('.order-card:not(.locked)').forEach(card => {
+        card.onclick = () => selectOrder(card.dataset.id)
+    })
+
+    // show detail if order selected
+    if (selectedOrder) showDetail(selectedOrder)
+}
+
+function showDetail(order) {
+    const detail = document.getElementById('detail')
+    if (!detail) return
+
+    // ── Arrived screen ──
+    if (arrivedShown) {
+        detail.innerHTML = `
+            <div class="arrived-card">
+                <div class="arrived-icon">📍</div>
+                <h2>Delivery Partner Arrived!</h2>
+                <p>You have reached the customer location</p>
+                <div class="c-name-big">👤 ${order.address?.firstName} ${order.address?.lastName}</div>
+                <a class="c-phone-big" href="tel:${order.address?.phone}">📞 ${order.address?.phone}</a>
+                <button class="btn btn-green" id="stopBtn">✅ Mark as Delivered</button>
+            </div>`
+        document.getElementById('stopBtn').onclick = stopTracking
+        return
+    }
+
+    let btnHtml
+    if (isTracking) {
+        btnHtml = `<button class="btn btn-stop" id="stopBtn">⏹ Stop Tracking</button>`
+    } else if (order._accepted) {
+        btnHtml = `<button class="btn btn-green" id="startBtn">📍 Start Live Tracking</button>`
+    } else {
+        btnHtml = `<button class="btn btn-red" id="acceptBtn">✅ Accept Order</button>`
+    }
+
+    detail.innerHTML = `
+        <div class="customer-card">
+            <div class="c-name">👤 ${order.address?.firstName} ${order.address?.lastName}</div>
+            <div class="c-row">📍 ${order.address?.street}, ${order.address?.city}, ${order.address?.state}</div>
+            <div class="c-row"><a class="c-phone" href="tel:${order.address?.phone}">📞 ${order.address?.phone}</a></div>
+        </div>
+        <div class="card">
+            <p class="sec-title">🗺️ Delivery Map</p>
+            <div id="map"></div>
+            <div id="dist-bar" class="dist-bar" style="display:none;"></div>
+            ${btnHtml}
+        </div>`
+
+    if (document.getElementById('acceptBtn'))
+        document.getElementById('acceptBtn').onclick = acceptOrder
+    if (document.getElementById('startBtn'))
+        document.getElementById('startBtn').onclick = startTracking
+    if (document.getElementById('stopBtn'))
+        document.getElementById('stopBtn').onclick = stopTracking
+
+    if (map) { map.remove(); map = null; myMarker = null; customerMarker = null; routeLayer = null }
+    buildMap(order)
+}
+
+async function buildMap(order) {
+    await new Promise(r => setTimeout(r, 60))
+    if (!document.getElementById('map')) return
+
+    map = L.map('map').setView([17.3850, 78.4867], 13)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
+
+    // my location
+    const myPos = await getMyPos()
+    if (!map) return
+    if (myPos) {
+        myLat = myPos.lat; myLng = myPos.lng
+        map.setView([myLat, myLng], 14)
+        myMarker = L.marker([myLat, myLng], {
+            icon: L.divIcon({ html: '<div style="font-size:26px;">🚚</div>', className:'', iconSize:[32,32], iconAnchor:[16,16] })
+        }).addTo(map).bindPopup('📍 You are here')
+    }
+
+    // customer location
+    customerCoords = await geocode(order.address)
+    if (!map) return
+    if (customerCoords) {
+        customerMarker = L.marker([customerCoords.lat, customerCoords.lng], {
+            icon: L.divIcon({ html: '<div style="font-size:26px;">🏠</div>', className:'', iconSize:[32,32], iconAnchor:[16,32] })
+        }).addTo(map).bindPopup(`🏠 ${order.address?.firstName} ${order.address?.lastName}<br/>${order.address?.street}`)
+    }
+
+    // route
+    if (myPos && customerCoords) {
+        await drawRoute(myLat, myLng, customerCoords.lat, customerCoords.lng)
+    } else if (customerCoords && map) {
+        map.setView([customerCoords.lat, customerCoords.lng], 14)
+    }
+}
+
+async function drawRoute(fLat, fLng, tLat, tLng) {
+    if (!map) return
+    if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null }
+    const route = await getRoute(fLat, fLng, tLat, tLng)
+    const db = document.getElementById('dist-bar')
+    if (route) {
+        routeLayer = L.polyline(route.coords, { color:'tomato', weight:4 }).addTo(map)
+        map.fitBounds(routeLayer.getBounds(), { padding:[40,40] })
+        if (db) { db.style.display='flex'; db.innerHTML=`<span>🛣️ Road distance</span><b>${distLabel(route.distKm)} · ~${route.durMin} min</b>` }
+    } else {
+        routeLayer = L.polyline([[fLat,fLng],[tLat,tLng]], { color:'tomato', weight:3, dashArray:'8,6' }).addTo(map)
+        map.fitBounds([[fLat,fLng],[tLat,tLng]], { padding:[40,40] })
+        if (db) { db.style.display='flex'; db.innerHTML=`<span>📍 Distance</span><b>${distLabel(haversine(fLat,fLng,tLat,tLng))}</b>` }
+    }
+}
+
+// ── select order ──
+async function selectOrder(orderId) {
+    if (isTracking) return
+    const order = currentOrders.find(o => o._id === orderId)
+    if (!order) return
+    if (order.assignedTo && order.assignedTo !== deliveryBoyName) return
+    selectedOrder = order
+    localStorage.setItem('dbOrder', JSON.stringify(order))
+    myMarker = null; customerMarker = null; routeLayer = null; customerCoords = null
+    if (map) { map.remove(); map = null }
+    showDashboard()
+}
+
+async function acceptOrder() {
+    if (!selectedOrder) return
+    try {
+        const res = await fetch(`${API}/api/deliveryboy/accept`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': dbToken },
+            body: JSON.stringify({ orderId: selectedOrder._id })
+        })
+        const data = await res.json()
+        if (!data.success) {
+            alert('❌ ' + data.message)
+            selectedOrder = null
+            localStorage.removeItem('dbOrder')
+            loadOrders()
+            return
+        }
+        selectedOrder._accepted = true
+        localStorage.setItem('dbOrder', JSON.stringify(selectedOrder))
+        loadOrders()
+    } catch(e) { alert('Connection error') }
+}
+
+// ── tracking ──
+function startTracking() {
+    if (!selectedOrder || !navigator.geolocation) return
+    if (socket) socket.emit('join-order', selectedOrder._id)
+    isTracking = true
+    localStorage.setItem('dbTracking', 'true')
+
+    arrivedShown = false
+    let lastRoute = 0
+    const send = async (lat, lng) => {
+        myLat = lat; myLng = lng
+        if (myMarker) myMarker.setLatLng([lat, lng])
+
+        // ── arrived detection (< 150m) ──
+        if (customerCoords && !arrivedShown) {
+            const dist = haversine(lat, lng, customerCoords.lat, customerCoords.lng)
+            if (dist < 0.15) {
+                arrivedShown = true
+                if (map) { map.remove(); map = null; myMarker = null; customerMarker = null; routeLayer = null }
+                if (socket) socket.emit('delivery-arrived', selectedOrder._id)
+                showDashboard()
+                return
+            }
+        }
+
+        if (customerCoords && Date.now() - lastRoute > 10000) {
+            lastRoute = Date.now()
+            drawRoute(lat, lng, customerCoords.lat, customerCoords.lng)
+        }
+        fetch(`${API}/api/order/update-location`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId: selectedOrder._id, lat, lng, deliveryBoyName })
+        })
+    }
+
+    navigator.geolocation.getCurrentPosition(p => send(p.coords.latitude, p.coords.longitude), null, { enableHighAccuracy: true })
+    watchId = navigator.geolocation.watchPosition(
+        p => send(p.coords.latitude, p.coords.longitude),
+        err => console.error(err),
+        { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+    )
+
+    // update button only — don't rebuild whole dashboard
+    const startBtn = document.getElementById('startBtn')
+    if (startBtn) {
+        startBtn.textContent = '⏹ Stop Tracking'
+        startBtn.className = 'btn btn-stop'
+        startBtn.id = 'stopBtn'
+        startBtn.onclick = stopTracking
+    }
+
+    // update live bar
+    showDashboard()
+}
+
+function stopTracking() {
+    arrivedShown = false
+    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null }
+    if (socket && selectedOrder) socket.emit('leave-order', selectedOrder._id)
+    if (selectedOrder) {
+        fetch(`${API}/api/deliveryboy/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'token': dbToken },
+            body: JSON.stringify({})
+        })
+    }
+    isTracking = false; selectedOrder = null
+    if (map) { map.remove(); map = null }
+    myMarker = null; customerMarker = null; routeLayer = null; customerCoords = null
+    localStorage.removeItem('dbTracking'); localStorage.removeItem('dbOrder')
+    loadOrders()
+}
+
+function logout() {
+    if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null }
+    if (socket && selectedOrder) socket.emit('leave-order', selectedOrder._id)
+    if (selectedOrder) fetch(`${API}/api/deliveryboy/complete`, { method:'POST', headers:{'Content-Type':'application/json','token':dbToken}, body: JSON.stringify({}) })
+    if (map) { map.remove(); map = null }
+    isTracking = false; selectedOrder = null
+    myMarker = null; customerMarker = null; routeLayer = null; customerCoords = null
+    localStorage.removeItem('dbTracking'); localStorage.removeItem('dbOrder')
+    deliveryBoyName = ''; dbToken = ''
+    localStorage.removeItem('dbName'); localStorage.removeItem('dbToken')
+    if (socket) { socket.disconnect(); socket = null }
+    const btn = document.getElementById('headerLogoutBtn')
+    if (btn) btn.style.display = 'none'
+    showLogin()
+}
+
+// ── init ──
+if (dbToken && deliveryBoyName) { connectSocket(); loadOrders() } else showLogin()
+</script>
+</body>
+</html>

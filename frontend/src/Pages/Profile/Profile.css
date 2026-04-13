@@ -1,0 +1,180 @@
+.profile-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 40px 20px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 50px rgba(255,99,71,0.15);
+    border-top: 4px solid tomato;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+}
+
+.profile-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #aaa;
+    transition: color 0.2s;
+}
+
+.profile-close-btn:hover { color: tomato; }
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background: tomato;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.profile-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.profile-email {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.profile-info p {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+}
+
+.edit-btn {
+    margin-top: 8px;
+    padding: 10px 24px;
+    background: tomato;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.edit-btn:hover { background: #e03e1a; }
+
+.profile-edit {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-field { display: flex; flex-direction: column; gap: 6px; }
+.profile-field p { font-size: 13px; font-weight: 600; color: #555; margin: 0; }
+
+.profile-field input {
+    padding: 10px 14px;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.profile-field input:focus { border-color: tomato; }
+
+.profile-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.save-btn {
+    flex: 1;
+    padding: 10px;
+    background: tomato;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.save-btn:hover { background: #e03e1a; }
+
+.cancel-btn {
+    flex: 1;
+    padding: 10px;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.profile-msg {
+    font-size: 13px;
+    color: green;
+    font-weight: 600;
+}
+
+.profile-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.profile-actions button {
+    width: 100%;
+    padding: 11px;
+    background: transparent;
+    border: 1.5px solid tomato;
+    color: tomato;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s, color 0.3s;
+}
+
+.profile-actions button:hover {
+    background: tomato;
+    color: white;
+}

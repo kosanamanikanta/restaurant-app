@@ -1,0 +1,19 @@
+.db-page { padding: 30px; max-width: 700px; }
+.db-title { font-size: 24px; font-weight: 700; color: #333; margin-bottom: 24px; }
+.db-section { margin-bottom: 28px; }
+.db-section-title { font-size: 14px; font-weight: 700; color: #555; margin-bottom: 12px; }
+.db-empty { color: #bbb; font-size: 14px; text-align: center; padding: 20px 0; }
+.db-card { background: white; border-radius: 12px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid tomato; margin-bottom: 10px; transition: opacity 0.2s; }
+.db-card.inactive { border-left-color: #ddd; opacity: 0.6; }
+.db-card.pending { border-left-color: #f39c12; background: #fffbf0; }
+.db-name { font-size: 15px; font-weight: 700; color: #333; margin-bottom: 3px; }
+.db-meta { font-size: 12px; color: #888; }
+.db-pending-tag { background: #fff3cd; color: #f39c12; border: 1px solid #f39c12; border-radius: 20px; padding: 1px 8px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+.db-inactive-tag { background: #f5f5f5; color: #aaa; border: 1px solid #ddd; border-radius: 20px; padding: 1px 8px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+.db-actions { display: flex; gap: 8px; align-items: center; }
+.db-approve-btn { padding: 7px 16px; border-radius: 50px; border: 1.5px solid #2ecc71; background: white; color: #2ecc71; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.db-approve-btn:hover { background: #2ecc71; color: white; }
+.db-toggle-btn { padding: 7px 14px; border-radius: 50px; border: 1.5px solid #ddd; background: white; font-size: 12px; font-weight: 600; cursor: pointer; color: #aaa; transition: 0.2s; }
+.db-toggle-btn.active { border-color: #2ecc71; color: #2ecc71; }
+.db-del-btn { padding: 7px 10px; border-radius: 50px; border: 1.5px solid #ffcccc; background: white; color: #e74c3c; cursor: pointer; font-size: 13px; transition: 0.2s; }
+.db-del-btn:hover { background: #e74c3c; color: white; }

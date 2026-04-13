@@ -1,0 +1,200 @@
+.dashboard { padding: 30px; animation: fadeIn 0.5s ease both; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-loading {
+    padding: 60px;
+    text-align: center;
+    color: #aaa;
+    font-size: 16px;
+}
+
+.dashboard-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 24px;
+}
+
+/* ── Stat Cards ── */
+.dash-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.dash-card {
+    border-radius: 14px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    animation: cardPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+    transition: transform 0.2s;
+}
+
+.dash-card:hover { transform: translateY(-4px); }
+
+.dash-card.clickable { cursor: pointer; }
+.dash-card.clickable:hover { transform: translateY(-6px) scale(1.03); }
+
+.dash-card-hint {
+    font-size: 11px;
+    opacity: 0.7;
+    margin: 4px 0 0;
+}
+
+.dash-card.tomato  { background: linear-gradient(135deg, tomato, #e03e1a); }
+.dash-card.green   { background: linear-gradient(135deg, #27ae60, #1e8449); }
+.dash-card.blue    { background: linear-gradient(135deg, #2980b9, #1a5276); }
+.dash-card.purple  { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+.dash-card.orange  { background: linear-gradient(135deg, #e67e22, #ca6f1e); }
+.dash-card.teal    { background: linear-gradient(135deg, #16a085, #0e6655); }
+.dash-card.gray    { background: linear-gradient(135deg, #7f8c8d, #616a6b); }
+.dash-card.pink    { background: linear-gradient(135deg, #e91e8c, #c0175d); }
+
+@keyframes cardPop {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.dash-card-label { font-size: 13px; opacity: 0.85; margin: 0 0 8px; }
+.dash-card-value { font-size: 26px; font-weight: 700; margin: 0; }
+
+/* ── Bottom ── */
+.dash-bottom {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+}
+
+.dash-right { display: flex; flex-direction: column; gap: 20px; }
+
+.dash-section {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+}
+
+.dash-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 16px;
+}
+
+.dash-empty { font-size: 13px; color: #aaa; }
+
+/* ── Bar Chart ── */
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    height: 200px;
+    padding-bottom: 8px;
+}
+
+.bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+    padding: 4px;
+}
+
+.bar-col:hover { background: #fff5f3; }
+
+.bar-amount { font-size: 10px; color: #888; margin: 0; }
+
+.bar-wrap {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    height: 140px;
+}
+
+.bar {
+    width: 100%;
+    background: linear-gradient(180deg, tomato, #e03e1a);
+    border-radius: 6px 6px 0 0;
+    min-height: 4px;
+    transition: height 0.6s ease;
+}
+
+.bar-label { font-size: 11px; font-weight: 600; color: #555; margin: 0; }
+.bar-orders { font-size: 10px; color: #aaa; margin: 0; }
+
+/* ── Top Items ── */
+.top-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.top-item:last-child { border-bottom: none; }
+
+.top-rank {
+    width: 24px;
+    height: 24px;
+    background: tomato;
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.top-name { flex: 1; font-size: 13px; color: #333; font-weight: 600; margin: 0; }
+.top-count { font-size: 12px; color: tomato; font-weight: 700; }
+
+/* ── Status ── */
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #f5f5f5;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.status-row:hover { background: #fff5f3; }
+.status-row:last-child { border-bottom: none; }
+.status-row p { font-size: 13px; color: #555; margin: 0; }
+
+.status-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 50px;
+    color: white;
+}
+
+.status-badge.status-food-processing { background: #e67e22; }
+.status-badge.status-out-for-delivery { background: #2980b9; }
+.status-badge.status-delivered { background: #27ae60; }
+.status-badge.status-cancelled { background: #e74c3c; }
+
+@media(max-width:1100px) {
+    .dash-cards { grid-template-columns: repeat(2, 1fr); }
+    .dash-bottom { grid-template-columns: 1fr; }
+}
+
+@media(max-width:600px) {
+    .dash-cards { grid-template-columns: repeat(2, 1fr); }
+    .dashboard { padding: 16px; }
+}

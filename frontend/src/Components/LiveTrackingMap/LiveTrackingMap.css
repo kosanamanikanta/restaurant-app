@@ -1,0 +1,154 @@
+.live-map-wrap {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1.5px solid #f0e0de;
+    animation: fadeUp 0.4s ease both;
+    box-shadow: 0 4px 16px rgba(255,99,71,0.1);
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.live-map-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    background: linear-gradient(135deg, #fff5f3, #fff);
+    border-bottom: 1px solid #f0e0de;
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    flex-wrap: wrap;
+}
+
+.live-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #2ecc71;
+    display: inline-block;
+    animation: livePulse 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes livePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.5); }
+    50%       { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+}
+
+.delivery-boy-name {
+    margin-left: auto;
+    color: tomato;
+    font-size: 12px;
+    background: #fff5f3;
+    border: 1px solid #ffd5cc;
+    border-radius: 20px;
+    padding: 2px 10px;
+}
+
+.waiting-msg {
+    color: #aaa;
+    font-weight: 400;
+    font-size: 12px;
+    margin-left: auto;
+}
+
+.live-map {
+    height: 300px;
+    width: 100%;
+}
+
+.delivery-marker {
+    font-size: 28px;
+    animation: bounce 0.8s ease-in-out infinite alternate;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+}
+
+@keyframes bounce {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-6px); }
+}
+
+.live-distance-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #fff5f3;
+    border-top: 1px solid #f0e0de;
+    font-size: 12px;
+    color: #888;
+}
+
+.live-distance-row b {
+    color: tomato;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+/* Skeleton waiting bar */
+.live-waiting-bar {
+    padding: 12px 16px;
+    background: #fafafa;
+    border-top: 1px solid #f0e0de;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.live-waiting-bar p {
+    font-size: 12px;
+    color: #bbb;
+    margin: 0;
+    text-align: center;
+}
+
+.live-skeleton {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Arrived banner */
+.arrived-wrap {
+    background: linear-gradient(135deg, #f0fff4, #e8f8f0);
+    border: 2px solid #2ecc71;
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    animation: fadeUp 0.4s ease both;
+}
+
+.arrived-wrap .arrived-icon {
+    font-size: 52px;
+    margin-bottom: 10px;
+    animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both;
+}
+
+.arrived-wrap h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #27ae60;
+    margin-bottom: 6px;
+}
+
+.arrived-wrap p {
+    font-size: 13px;
+    color: #555;
+    margin: 0;
+}
+
+@keyframes popIn {
+    from { transform: scale(0.3); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
