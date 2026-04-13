@@ -97,10 +97,15 @@ function haversine(a, b, c, d) {
 
 async function geocode(addr) {
     try {
-        const q = encodeURIComponent(`${addr.street}, ${addr.city}, ${addr.state}, ${addr.country}`)
+        const q = encodeURIComponent(`${addr.street}, ${addr.city}, ${addr.state}, India`)
         const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`)
         const d = await r.json()
         if (d.length > 0) return { lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon) }
+        // fallback — city only
+        const q2 = encodeURIComponent(`${addr.city}, ${addr.state}, India`)
+        const r2 = await fetch(`https://nominatim.openstreetmap.org/search?q=${q2}&format=json&limit=1`)
+        const d2 = await r2.json()
+        if (d2.length > 0) return { lat: parseFloat(d2[0].lat), lng: parseFloat(d2[0].lon) }
     } catch(e) {}
     return null
 }

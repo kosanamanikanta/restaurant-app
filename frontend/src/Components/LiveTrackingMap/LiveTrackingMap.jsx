@@ -64,11 +64,19 @@ const LiveTrackingMap = ({ order, url, settings }) => {
     useEffect(() => {
         const addr = order.address
         if (!addr) return
-        const q = encodeURIComponent(`${addr.street}, ${addr.city}, ${addr.state}, ${addr.country}`)
+        const q = encodeURIComponent(`${addr.street}, ${addr.city}, ${addr.state}, India`)
         fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1`)
             .then(r => r.json())
             .then(data => {
-                if (data.length > 0) setCustomerPos([parseFloat(data[0].lat), parseFloat(data[0].lon)])
+                if (data.length > 0) {
+                    setCustomerPos([parseFloat(data[0].lat), parseFloat(data[0].lon)])
+                } else {
+                    // fallback — city only
+                    const q2 = encodeURIComponent(`${addr.city}, ${addr.state}, India`)
+                    return fetch(`https://nominatim.openstreetmap.org/search?q=${q2}&format=json&limit=1`)
+                        .then(r => r.json())
+                        .then(d2 => { if (d2.length > 0) setCustomerPos([parseFloat(d2[0].lat), parseFloat(d2[0].lon)]) })
+                }
             })
             .catch(() => {})
     }, [order._id])
